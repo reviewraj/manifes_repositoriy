@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE = 'nagaraju7876482/real-chat'
+    }
+
+    stages {
+        stage('Building the Docker Image') {
+            steps {
+                dir('D:/workspace/Nodejs-Real-time-Chat-App') {
+                    script {
+                        // Build the Docker image
+                        docker.build("${DOCKER_IMAGE}")
+                    }
+                }
+            }
+        }
+        stage('Pushing the Image to Docker Hub') {
+            steps {
+                dir('D:/workspace/Nodejs-Real-time-Chat-App') { // Ensure the directory is correctly set
+                    script {
+                        docker.withRegistry('', 'DOCKER_CRED') { // Replace 'DOCKER_CRED' with your actual credentials ID
+                            // Push the Docker image to Docker Hub
+                            docker.image("${DOCKER_IMAGE}").push('v1.1.0')
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
